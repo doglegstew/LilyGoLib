@@ -731,7 +731,10 @@ void LilyGoUltra::lightSleep(WakeupSource_t wakeup_src)
         return;
     }
 
+#ifndef ARDUINO_LILYGO_LORA_SX1280
+    // SX1280 died here, the reason is not analyzed yet, waiting to be processed
     radio.sleep();
+#endif
 
     powerControl(POWER_HAPTIC_DRIVER, false);
     powerControl(POWER_GPS, false);
