@@ -164,8 +164,8 @@
 | DC4        | Unused               |
 | DC5        | Unused               |
 | LDO1(VRTC) | **RTC & GPS Backup** |
-| ALDO1      | **Display**          |
-| ALDO2      | **SDCard**           |
+| ALDO1      | **SDCard**           |
+| ALDO2      | **Display**          |
 | ALDO3      | **LoRa**             |
 | ALDO4      | **Sensor**           |
 | BLDO1      | **GNSS**             |

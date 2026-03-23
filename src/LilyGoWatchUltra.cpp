@@ -392,8 +392,8 @@ void LilyGoUltra::vibrator()
 * | DC4        | 0.5-1.2V,1.22-1.84V             /1.5A  | Unused      |
 * | DC5        | 1.2V,1.4-3.7V                   /1A    | Unused      |
 * | LDO1(VRTC) | 3.3V                            /30mA  | RTC & GPS   |
-* | ALDO1      | 3.3V                            /300mA | Display     |
-* | ALDO2      | 3.3V                            /300mA | SDCard      |
+* | ALDO1      | 3.3V                            /300mA | SDCard      |
+* | ALDO2      | 3.3V                            /300mA | Display     |
 * | ALDO3      | 3.3V                            /300mA | Radio       |
 * | ALDO4      | 1.8V                            /300mA | Sensor      |
 * | BLDO1      | 3.3V                            /300mA | GPS         |
