@@ -18,7 +18,7 @@ public:
 
     ~GPS();
 
-    bool init(Stream *stream);
+    bool init(HardwareSerial *stream);
     bool factory();
 
     uint32_t  loop(bool debug = false)
@@ -42,10 +42,9 @@ public:
 
     String getModel()
     {
-        return model;
+        return _model;
     }
 private:
-    int getAck(uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t requestedID);
-    Stream *_stream;
-    String model;
+    HardwareSerial *_stream;
+    String _model;
 };
