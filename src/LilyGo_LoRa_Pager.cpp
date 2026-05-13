@@ -207,14 +207,16 @@ uint32_t LilyGoLoRaPager::begin(uint32_t disable_hw_init)
     devices_probe = 0x00;
 
     while (!psramFound()) {
-        log_d("ERROR:PSRAM NOT FOUND!"); delay(1000);
+        log_e("ERROR:PSRAM NOT FOUND!"); delay(1000);
     }
 
     devices_probe |= HW_PSRAM_ONLINE;
 
     Wire.begin(SDA, SCL);
 
-    SensorWireHelper::dumpDevices(Wire, Serial);
+    if (!(disable_hw_init & NO_SCAN_I2C_DEV)) {
+        SensorWireHelper::dumpDevices(Wire, Serial);
+    }
 
     if (!gauge.begin(Wire, SDA, SCL)) {
         log_e("Failed to find GAUGE.");
@@ -325,8 +327,6 @@ uint32_t LilyGoLoRaPager::begin(uint32_t disable_hw_init)
 
     esp_enable_slow_crystal();
 
-
-
     SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI);
 
     initShareSPIPins();
@@ -392,25 +392,30 @@ uint32_t LilyGoLoRaPager::begin(uint32_t disable_hw_init)
 #endif /*USING_PDM_MICROPHONE*/
 
 #ifdef USING_AUDIO_CODEC
-    codec.setPins(I2S_MCLK, I2S_SCK, I2S_WS, I2S_SDOUT, I2S_SDIN);
-    if (codec.begin(Wire, 0x18, CODEC_TYPE_ES8311)) {
-        devices_probe |= HW_CODEC_ONLINE;
-        log_i("Codec init succeeded");
-    } else {
-        log_e("Warning: Failed to find Codec");
+    if (!(disable_hw_init & NO_HW_CODEC)) {
+        codec.setPins(I2S_MCLK, I2S_SCK, I2S_WS, I2S_SDOUT, I2S_SDIN);
+        if (codec.begin(Wire, 0x18, CODEC_TYPE_ES8311)) {
+            devices_probe |= HW_CODEC_ONLINE;
+            log_i("Codec init succeeded");
+        } else {
+            log_e("Warning: Failed to find Codec");
+        }
+        codec.setPaPinCallback([](bool enable, void *user_data) {
+            ((ExtensionIOXL9555 *)user_data)->digitalWrite(EXPANDS_AMP_EN, enable);
+        }, &io);
     }
-    codec.setPaPinCallback([](bool enable, void *user_data) {
-        ((ExtensionIOXL9555 *)user_data)->digitalWrite(EXPANDS_AMP_EN, enable);
-    }, &io);
 #endif /*USING_AUDIO_CODEC*/
 
-    // Create message queue
-    rotaryMsg = xQueueCreate(5, sizeof(RotaryMsg_t));
 
-    rotaryTaskFlag = xEventGroupCreate();
+    if (!(disable_hw_init & NO_HW_ROTARY)) {
+        // Create message queue
+        rotaryMsg = xQueueCreate(5, sizeof(RotaryMsg_t));
 
-    // Create a rotary encoder processing task
-    xTaskCreate(rotaryTask, "rotary", 2 * 1024, NULL, 10, &rotaryHandler);
+        rotaryTaskFlag = xEventGroupCreate();
+
+        // Create a rotary encoder processing task
+        xTaskCreate(rotaryTask, "rotary", 2 * 1024, NULL, 10, &rotaryHandler);
+    }
 
     return devices_probe;
 }
@@ -1123,23 +1128,26 @@ void LilyGoLoRaPager::loop()
 RotaryMsg_t LilyGoLoRaPager::getRotary()
 {
     static RotaryMsg_t msg;
-    if (xQueueReceive(rotaryMsg, &msg, pdMS_TO_TICKS(50)) == pdPASS) {
-        return (msg);
-    } else {
-        msg.centerBtnPressed = false;
-        msg.dir = ROTARY_DIR_NONE;
+    if (rotaryMsg) {
+        if (xQueueReceive(rotaryMsg, &msg, pdMS_TO_TICKS(50)) == pdPASS) {
+            return (msg);
+        }
     }
+    msg.centerBtnPressed = false;
+    msg.dir = ROTARY_DIR_NONE;
     return (msg);
 }
 
 void LilyGoLoRaPager::clearRotaryMsg()
 {
-    UBaseType_t uxMessagesWaiting;
-    uxMessagesWaiting = uxQueueMessagesWaiting(rotaryMsg);
-    while (uxMessagesWaiting > 0) {
-        RotaryMsg_t msg;;
-        xQueueReceive(rotaryMsg, &msg, 0);
+    if (rotaryMsg) {
+        UBaseType_t uxMessagesWaiting;
         uxMessagesWaiting = uxQueueMessagesWaiting(rotaryMsg);
+        while (uxMessagesWaiting > 0) {
+            RotaryMsg_t msg;;
+            xQueueReceive(rotaryMsg, &msg, 0);
+            uxMessagesWaiting = uxQueueMessagesWaiting(rotaryMsg);
+        }
     }
 }
 
