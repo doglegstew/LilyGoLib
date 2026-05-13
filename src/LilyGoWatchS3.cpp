@@ -118,6 +118,11 @@ uint32_t LilyGoWatch2022::begin(uint32_t disable_hw_init)
     Wire1.begin(TP_SDA, TP_SCL);
     SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI);
 
+    if (!(disable_hw_init & NO_SCAN_I2C_DEV)) {
+        SensorWireHelper::dumpDevices(Wire);
+        SensorWireHelper::dumpDevices(Wire1);
+    }
+
     log_d("Init PMU");
     if (!initPMU()) {
         log_e("Failed to find PMU!");
@@ -135,12 +140,6 @@ uint32_t LilyGoWatch2022::begin(uint32_t disable_hw_init)
         this->pushColors(0, 0, w, h, (uint16_t *)_boot_images_addr);
         incrementalBrightness(250, 20);
     }
-
-    if (!(disable_hw_init & NO_SCAN_I2C_DEV)) {
-        SensorWireHelper::dumpDevices(Wire);
-        SensorWireHelper::dumpDevices(Wire1);
-    }
-
 
     if (!(disable_hw_init & NO_HW_TOUCH)) {
         initTouch();
@@ -409,7 +408,7 @@ void LilyGoWatch2022::setBrightness(uint8_t level)
 * | DC1        | 3.3V                            /2A    | ESP32-S3           | VDD3V3   |
 * | DC2        | 0.5-1.2V,1.22-1.54V             /2A    | Unused             | X        |
 * | DC3        | 0.5-1.2V,1.22-1.54V,1.6-3.4V    /2A    | GPS                | VCC_2_5V |
-* | DC4        | 0.5-1.2V,1.22-1.84V             /1.5A  | Unused             | X        |
+* | DC4        | 0.5-1.2V,1.22-1.84V             /1.5A  | GPS               | X        | (LS550G GPS Version)
 * | DC5        | 1.2V,1.4-3.7V                   /1A    | Unused             | X        |
 * | LDO1(VRTC) | 3.3V                            /30mA  | Unused             | X        |
 * | ALDO1      | 3.3V                            /300mA | Unused             | X        |
@@ -448,10 +447,11 @@ bool LilyGoWatch2022::initPMU()
     pmu.setBLDO1Voltage(3300);  // GPS , (The version with BOOT button and RST on the back cover)
     pmu.setDC3Voltage(3300);    // GPS , Earlier versions use DC3 (without BOOT button and RST)
     pmu.setButtonBatteryChargeVoltage(3300);    // RTC backup battery
+    pmu.setDC4Voltage(850);    // LS550G GPS Need 0.85V Core voltage,Only LS550G GPS Version
 
     // UNUSED POWER CHANNEL
     pmu.disableDC2();
-    pmu.disableDC4();
+    // pmu.disableDC4();
     pmu.disableDC5();
     pmu.disableALDO1();
     // pmu.disableBLDO1();
@@ -464,6 +464,7 @@ bool LilyGoWatch2022::initPMU()
     pmu.enableALDO4();  // Radio
     pmu.enableBLDO2();  // Drv2605 enable pin
     pmu.enableDC3();    // GPS , Earlier versions use DC3 (without BOOT button and RST)
+    pmu.enableDC4();    // LS550G GPS Need 0.85V Core voltage,Only LS550G GPS Version
     pmu.enableBLDO1();  // GPS , (The version with BOOT button and RST on the back cover)
     pmu.enableButtonBatteryCharge();    // RTC backup battery
 
@@ -659,9 +660,11 @@ void LilyGoWatch2022::powerControl(PowerCtrlChannel_t ch, bool enable)
         break;
     case POWER_GPS:
         if (enable) {
+            pmu.enableDC4();        // LS550G Version Only
             pmu.enableBLDO1();
             Serial1.begin(38400, SERIAL_8N1, GPS_RX, GPS_TX);
         } else {
+            pmu.disableDC4();       // LS550G Version Only
             pmu.disableBLDO1();
             Serial1.end();
             gpio_reset_pin((gpio_num_t )GPS_RX);

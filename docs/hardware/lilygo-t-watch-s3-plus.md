@@ -31,21 +31,21 @@
 
 ### ✨ Hardware-Features
 
-| Features              | Params                               |
-| --------------------- | ------------------------------------ |
-| SOC                   | [Espressif ESP32-S3][1]              |
-| Flash                 | 16MB(QSPI)                           |
-| PSRAM                 | 8MB (QSPI)                           |
-| GNSS                  | [UBlox MIA-M10Q][2]                  |
-| LoRa                  | [Semtech SX1262][3]                  |
-| Accelerometer sensor  | [Bosch BMA423][4]                    |
-| Real-Time Clock       | [NXP PCF8563][5]                     |
-| Power Manage          | [X-Powers AXP2101][6]                |
-| Haptic driver         | [Ti DRV2605][7]                      |
-| PDM Microphone        | [SPM1423HM4H-B][8]                   |
-| PCM Class D Amplifier | [Analog MAX98357A (3.2W Class D)][9] |
-| Capacitive Touch      | [FT6336U][10]                        |
-| Infrared transmitter  | [IR12-21C][11]                       |
+| Features              | Params                                      |
+| --------------------- | ------------------------------------------- |
+| SOC                   | [Espressif ESP32-S3][1]                     |
+| Flash                 | 16MB(QSPI)                                  |
+| PSRAM                 | 8MB (QSPI)                                  |
+| GNSS                  | [UBlox MIA-M10Q][2] or [Quectel LS550G][12] |
+| LoRa                  | [Semtech SX1262][3]                         |
+| Accelerometer sensor  | [Bosch BMA423][4]                           |
+| Real-Time Clock       | [NXP PCF8563][5]                            |
+| Power Manage          | [X-Powers AXP2101][6]                       |
+| Haptic driver         | [Ti DRV2605][7]                             |
+| PDM Microphone        | [SPM1423HM4H-B][8]                          |
+| PCM Class D Amplifier | [Analog MAX98357A (3.2W Class D)][9]        |
+| Capacitive Touch      | [FT6336U][10]                               |
+| Infrared transmitter  | [IR12-21C][11]                              |
 
 [1]: https://www.espressif.com.cn/en/products/socs/esp32-s3 "ESP32-S3"
 [2]: https://www.u-blox.com/en/product/mia-m10-series "UBlox MIA-M10Q"
@@ -58,6 +58,7 @@
 [9]: https://www.analog.com/en/products/max98357a.html "MAX98357A"
 [10]: https://buydisplay.com/download/ic/FT6236-FT6336-FT6436L-FT6436_Datasheet.pdf "FT6336U"
 [11]: https://www.everlight-led.cn/zh/datasheet-download/item/ir12-21c-tr8-datasheet "IR12-21C"
+[12]: https://www.quectel.com/product/gnss-ls550g-00/ "LS550G"
 
 ### ✨ Display-Features
 
@@ -91,9 +92,9 @@
 | PCM Amplifier(**MAX98357A**) BCLK    | 48                 | ❌    |
 | PCM Amplifier(**MAX98357A**) WCLK    | 15                 | ❌    |
 | PCM Amplifier(**MAX98357A**) DOUT    | 46                 | ❌    |
-| GNSS(**MIA-M10Q**) TX                | 42                 | ❌    |
-| GNSS(**MIA-M10Q**) RX                | 41                 | ❌    |
-| GNSS(**MIA-M10Q**) PPS               | Not Connected      | ❌    |
+| GNSS(**MIA-M10Q or LS550G**) TX      | 42                 | ❌    |
+| GNSS(**MIA-M10Q or LS550G**) RX      | 41                 | ❌    |
+| GNSS(**MIA-M10Q or LS550G**) PPS     | Not Connected      | ❌    |
 | LoRa(**SX1262 or SX1280**) SCK       | 3                  | ❌    |
 | LoRa(**SX1262 or SX1280**) MISO      | 4                  | ❌    |
 | LoRa(**SX1262 or SX1280**) MOSI      | 1                  | ❌    |
@@ -134,7 +135,7 @@
 | DC1        | **ESP32-S3**           |
 | DC2        | Unused                 |
 | DC3        | Unused ~~**GNSS**~~    |
-| DC4        | Unused                 |
+| DC4        | LS550G Version Only    |
 | DC5        | Unused                 |
 | LDO1(VRTC) | Unused                 |
 | ALDO1      | Unused                 |
@@ -149,6 +150,7 @@
 
 * BLDO1 as GPS power supply (with BOOT and RST buttons in the back shell)
 * DC3 was originally used as a GPS power source (there were no BOOT and RST buttons on the back cover)
+* LS550G GPS version needs to request the PMU to turn on DC4 (850mV) and BLDO1 (3300mV) before it can work.
 
 ### ⚡ Electrical parameters
 
