@@ -21,7 +21,7 @@ static uint32_t calibrate_one(rtc_cal_sel_t cal_clk, const char *name)
     return cali_val;
 }
 
-void esp_enable_slow_crystal()
+bool esp_enable_slow_crystal()
 {
     rtc_clk_32k_enable(true);
 
@@ -29,19 +29,21 @@ void esp_enable_slow_crystal()
     uint32_t cal_32k = CALIBRATE_ONE(RTC_CAL_32K_XTAL);
 
     if (cal_32k == 0) {
-        log_d("32K XTAL OSC has not started up\n");
+        log_e("32K XTAL OSC has not started up");
+        return false;
     } else {
         rtc_clk_slow_freq_set(RTC_SLOW_FREQ_32K_XTAL);
-        log_d("Switching RTC Source to 32.768Khz succeeded, using 32K XTAL\n");
+        log_d("Switching RTC Source to 32.768Khz succeeded, using 32K XTAL");
         CALIBRATE_ONE(RTC_CAL_RTC_MUX);
         CALIBRATE_ONE(RTC_CAL_32K_XTAL);
     }
     CALIBRATE_ONE(RTC_CAL_RTC_MUX);
     CALIBRATE_ONE(RTC_CAL_32K_XTAL);
     if (rtc_clk_slow_freq_get() != RTC_SLOW_FREQ_32K_XTAL) {
-        log_w("Failed to switch 32K XTAL RTC source to 32.768Khz !!! \n");
-        return;
+        log_e("Failed to switch 32K XTAL RTC source to 32.768Khz !!! ");
+        return false;
     }
+    return true;
 }
 
 void setGroupBitsFromISR(EventGroupHandle_t xEventGroup,

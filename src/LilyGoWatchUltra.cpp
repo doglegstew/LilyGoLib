@@ -21,7 +21,7 @@
 #include <Preferences.h>
 
 extern void setupMSC(lock_callback_t lock_cb, lock_callback_t ulock_cb);
-extern void esp_enable_slow_crystal();
+extern bool esp_enable_slow_crystal();
 extern void setGroupBitsFromISR(EventGroupHandle_t xEventGroup,
                                 const EventBits_t uxBitsToSet);
 

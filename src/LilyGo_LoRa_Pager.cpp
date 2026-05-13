@@ -19,7 +19,7 @@
 #include <SensorWireHelper.h>
 #include "driver/rtc_io.h"
 
-extern void esp_enable_slow_crystal();
+extern bool esp_enable_slow_crystal();
 extern void setGroupBitsFromISR(EventGroupHandle_t xEventGroup,
                                 const EventBits_t uxBitsToSet);
 
