@@ -22,6 +22,7 @@
 static lock_callback_t mutexUnlock = NULL;
 static lock_callback_t mutexLock = NULL;
 
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
 #if !ARDUINO_USB_MODE
 #include <USB.h>
 #include <USBMSC.h>
@@ -146,6 +147,8 @@ static bool onStartStop(uint8_t power_condition, bool start, bool load_eject)
 }
 #endif
 
+#endif /*#if defined(CONFIG_IDF_TARGET_ESP32S3)*/
+
 
 static void __listDir(fs::FS &fs, const char *dirname, uint8_t levels)
 {
@@ -225,7 +228,7 @@ void setupMSC(lock_callback_t lock_cb, lock_callback_t ulock_cb)
 
 #endif
 
-#if !ARDUINO_USB_MODE
+#if !ARDUINO_USB_MODE && defined(CONFIG_IDF_TARGET_ESP32S3)
 
 #ifdef USING_SD_FAT
     block_count = SD.numSectors();
