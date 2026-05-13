@@ -56,6 +56,7 @@
 #define NO_HW_QMC5883P              (_BV(16))
 #define NO_HW_CODEC                 (_BV(17))
 #define NO_HW_QMI8658               (_BV(18))
+#define NO_HW_ROTARY                (_BV(19))
 
 /* Hardware interrupt mask */
 #define HW_IRQ_TOUCHPAD             (_BV(0))
@@ -108,6 +109,7 @@ typedef enum WakeupSource {
     // T-DeckV2 Only
     WAKEUP_SRC_BUTTON_LEFT = _BV(6),
     WAKEUP_SRC_BUTTON_RIGHT = _BV(7),
+    WAKEUP_SRC_BUTTON = _BV(8)
 } WakeupSource_t;
 
 
