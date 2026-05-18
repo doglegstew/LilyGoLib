@@ -156,23 +156,23 @@
 
 ### ⚡ PowerManage Channel
 
-| CHIP       | Peripherals          |
-| ---------- | -------------------- |
-| DC1        | **ESP32-S3**         |
-| DC2        | Unused               |
-| DC3        | Unused               |
-| DC4        | Unused               |
-| DC5        | Unused               |
-| LDO1(VRTC) | **RTC & GPS Backup** |
-| ALDO1      | **SDCard**           |
-| ALDO2      | **Display**          |
-| ALDO3      | **LoRa**             |
-| ALDO4      | **Sensor**           |
-| BLDO1      | **GNSS**             |
-| BLDO2      | **Speaker**          |
-| DLDO1      | **NFC**              |
-| CPUSLDO    | Unused               |
-| VBACKUP    | Unused               |
+| CHIP       | Peripherals              |
+| ---------- | ------------------------ |
+| DC1        | **ESP32-S3**             |
+| DC2        | Unused                   |
+| DC3        | Unused                   |
+| DC4        | Unused                   |
+| DC5        | Unused                   |
+| LDO1(VRTC) | **GPS Backup** Can't OFF |
+| ALDO1      | **SDCard**               |
+| ALDO2      | **Display**              |
+| ALDO3      | **LoRa**                 |
+| ALDO4      | **Sensor**               |
+| BLDO1      | **GNSS**                 |
+| BLDO2      | **Speaker**              |
+| DLDO1      | **NFC**                  |
+| CPUSLDO    | Unused                   |
+| VBACKUP    | **RTC Button battery**   |
 
 ### ⚡ Electrical parameters
 

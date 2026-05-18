@@ -391,7 +391,7 @@ void LilyGoUltra::vibrator()
 * | DC3        | 0.5-1.2V,1.22-1.54V,1.6-3.4V    /2A    | Unused      |
 * | DC4        | 0.5-1.2V,1.22-1.84V             /1.5A  | Unused      |
 * | DC5        | 1.2V,1.4-3.7V                   /1A    | Unused      |
-* | LDO1(VRTC) | 3.3V                            /30mA  | RTC & GPS   |
+* | LDO1(VRTC) | 3.3V                            /30mA  | GPS BackUp  |
 * | ALDO1      | 3.3V                            /300mA | SDCard      |
 * | ALDO2      | 3.3V                            /300mA | Display     |
 * | ALDO3      | 3.3V                            /300mA | Radio       |
@@ -400,7 +400,7 @@ void LilyGoUltra::vibrator()
 * | BLDO2      | 3.3V                            /300mA | Speaker     |
 * | DLDO1      | 3.3V                            /300mA | NFC         |
 * | CPUSLDO    | 1.4V                            /30mA  | Unused      |
-* | VBACKUP    | 3.3V                            /30mA  | Unused      |
+* | VBACKUP    | 3.3V                            /30mA  | RTC Button battery      |
 * *********************************************************************
 */
 bool LilyGoUltra::initPMU(bool batteryCalibration)
