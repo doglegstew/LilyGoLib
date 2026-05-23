@@ -196,8 +196,8 @@
 | DeepSleep   | PowerButton + BootButton (Backup power on)  | 1.1mA   |
 | DeepSleep   | PowerButton + BootButton (Backup power off) | 840uA   |
 | DeepSleep   | TouchPanel                                  | 3.34mA  |
-| DeepSleep   | Timer (Backup power on)                     | 850uA   |
-| DeepSleep   | Timer (Backup power off)                    | 1.1mA   |
+| DeepSleep   | Timer (Backup power off)                    | 850uA   |
+| DeepSleep   | Timer (Backup power on)                     | 1.1mA   |
 | Power OFF   | Only keep the backup power                  | 77uA    |
 
 ### Resource
