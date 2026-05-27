@@ -15,13 +15,14 @@ struct uBloxGnssModelInfo { // Structure to hold the module info (uses 341 bytes
     char extension[10][30];
 } ;
 
-static int getAck(Stream & stream, uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t requestedID);
+static int getAck(Stream &stream, uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t requestedID);
 
 static bool checkLS550G(HardwareSerial &SerialGPS, String &gps_model)
 {
     SerialGPS.updateBaudRate(115200);
 
     bool result = false;
+    bool timeout = false;
 
     uint32_t startTimeout ;
 
@@ -35,9 +36,14 @@ static bool checkLS550G(HardwareSerial &SerialGPS, String &gps_model)
             SerialGPS.read();
             if (millis() > startTimeout) {
                 log_e("Wait LS550G stop NMEA timeout!");
-                return false;
+                timeout = true;
+                break;
             }
         };
+        if(timeout) {
+            timeout = false;
+            continue;
+        }
         SerialGPS.flush();
         delay(200);
 
@@ -47,8 +53,13 @@ static bool checkLS550G(HardwareSerial &SerialGPS, String &gps_model)
         while (!SerialGPS.available()) {
             if (millis() > startTimeout) {
                 log_e("Get LS550G timeout!");
-                return false;
+                timeout = true;
+                break;
             }
+        }
+        if(timeout) {
+            timeout = false;
+            continue;
         }
         SerialGPS.setTimeout(10);
 
@@ -83,15 +94,13 @@ static bool checkUblox(HardwareSerial &SerialGPS, String &gps_model)
 
     uint8_t buffer[256];
 
-    SerialGPS.updateBaudRate(38400);
-
     //  Get UBlox GPS module version
     uint8_t cfg_get_hw[] =  {0xB5, 0x62, 0x0A, 0x04, 0x00, 0x00, 0x0E, 0x34};
     SerialGPS.write(cfg_get_hw, sizeof(cfg_get_hw));
 
     uint16_t len = getAck(SerialGPS, buffer, 256, 0x0A, 0x04);
     if (len) {
-        memset((void*)&info, 0, sizeof(info));
+        memset((void *)&info, 0, sizeof(info));
         uint16_t position = 0;
         for (int i = 0; i < 30; i++) {
             info.softVersion[i] = buffer[position];
@@ -133,7 +142,7 @@ static bool checkUblox(HardwareSerial &SerialGPS, String &gps_model)
     return false;
 }
 
-static int getAck(Stream & stream, uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t requestedID)
+static int getAck(Stream &stream, uint8_t *buffer, uint16_t size, uint8_t requestedClass, uint8_t requestedID)
 {
     uint16_t    ubxFrameCounter = 0;
     uint32_t    startTime = millis();
@@ -240,24 +249,28 @@ bool GPS::init(HardwareSerial *stream)
     _stream = stream;
     assert(_stream);
 
-    int retry = 3;
-
-    while (retry--) {
-        if (checkUblox(*_stream, _model)) {
-            return true;
+    log_d("Start probe Ublox GPS Module");
+    // Get current baud rate
+    uint32_t baudRate = _stream->baudRate();
+    // By default, probe starts from the initial baud rate.
+    uint32_t nextBaudRate = baudRate == 38400 ? 9600 : 38400;
+    for (int next = 0; next < 2; ++next) {
+        log_d("Use baud: %d", _stream->baudRate());
+        for (int retry = 0; retry < 2; ++retry) {
+            if (checkUblox(*_stream, _model)) {
+                return true;
+            }
+            delay(10);
         }
-        delay(10);
+        // Test the next possible baud rate
+        _stream->updateBaudRate(nextBaudRate);
     }
 
-    while (retry--) {
-        if (checkLS550G(*_stream, _model)) {
-            return true;
-        }
-        delay(10);
+    log_d("Start probe LS550G GPS Module");
+    if (checkLS550G(*_stream, _model)) {
+        return true;
     }
-
-    retry = 3;
-
-    log_e("Warning: Failed to find GPS.\n");
+    // If the LS550G GPS Module is not found, revert to the original baud rate
+    _stream->updateBaudRate(baudRate);
     return false;
 }
