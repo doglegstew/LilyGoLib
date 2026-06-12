@@ -53,6 +53,20 @@ static void edit_textarea_event_cb(lv_event_t *e)
     lv_obj_t *ta = (lv_obj_t *)lv_event_get_target(e);
     bool state =  lv_obj_has_state(ta, LV_STATE_FOCUSED);
     bool edited =  lv_obj_has_state(ta, LV_STATE_EDITED);
+
+    // Pressing ENTER on the physical keyboard confirms the text and leaves
+    // edit mode. Without this the only way out is the rotary button, which
+    // makes the field feel "stuck" while typing.
+    if (code == LV_EVENT_KEY) {
+        lv_key_t key = *(lv_key_t *)lv_event_get_param(e);
+        if (key == LV_KEY_ENTER) {
+            lv_group_set_editing((lv_group_t *)lv_obj_get_group(ta), false);
+            disable_keyboard();
+            lv_event_stop_processing(e);
+            return;
+        }
+    }
+
     if (lv_indev_get_type(indev) == LV_INDEV_TYPE_ENCODER) {
         if (code == LV_EVENT_CLICKED) {
             if (edited) {

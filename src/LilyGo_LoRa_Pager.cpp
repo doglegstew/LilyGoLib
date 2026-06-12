@@ -1133,7 +1133,9 @@ RotaryMsg_t LilyGoLoRaPager::getRotary()
             return (msg);
         }
     }
-    msg.centerBtnPressed = false;
+    // No new event in the queue: rotation is momentary, but the center button
+    // level must persist so that holding it is reported as continuously
+    // pressed (e.g. push-to-talk). Keep the last known centerBtnPressed value.
     msg.dir = ROTARY_DIR_NONE;
     return (msg);
 }
@@ -1170,8 +1172,8 @@ void LilyGoLoRaPager::enableRotary()
 
 static bool getButtonState()
 {
-    static uint8_t buttonState;
-    static uint8_t lastButtonState = HIGH;
+    static uint8_t buttonState = HIGH;      // debounced, stable level
+    static uint8_t lastReading = HIGH;      // last raw reading
     static uint32_t lastDebounceTime = 0;
     const uint8_t debounceDelay = 20;
     int reading = digitalRead(ROTARY_C);
@@ -1185,20 +1187,16 @@ static bool getButtonState()
         }
     }
 
-    if (reading != lastButtonState) {
+    if (reading != lastReading) {
         lastDebounceTime = millis();
+        lastReading = reading;
     }
-    if (millis() - lastDebounceTime > debounceDelay) {
-        if (reading != buttonState) {
-            buttonState = reading;
-            if (buttonState == LOW) {
-                lastButtonState = reading;
-                return true;
-            }
-        }
+    if ((millis() - lastDebounceTime) > debounceDelay) {
+        buttonState = reading;
     }
-    lastButtonState = reading;
-    return false;
+    // Report the current held level (LOW = pressed) rather than just the press
+    // edge, so that holding the button stays "pressed" the whole time.
+    return (buttonState == LOW);
 }
 
 static void rotaryTask(void *p)
