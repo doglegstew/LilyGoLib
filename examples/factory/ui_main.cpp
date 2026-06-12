@@ -34,6 +34,7 @@ LV_IMG_DECLARE(img_track);
 LV_IMG_DECLARE(img_compass);
 LV_IMG_DECLARE(img_nfc);
 LV_IMG_DECLARE(img_batter_low);
+LV_IMG_DECLARE(img_walkie);
 
 LV_IMG_DECLARE(img_background2);
 
@@ -655,6 +656,8 @@ void setupGui()
     create_app(panel, "Music", &img_music, &ui_audio_main);
     create_app(panel, "LoRa", &img_radio, &ui_radio_main);
     create_app(panel, "LoRa Chat", &img_msgchat, &ui_msgchat_main);
+    extern app_t ui_walkie_main;
+    create_app(panel, "Walkie", &img_walkie, &ui_walkie_main);
     create_app(panel, "GPS", &img_gps, &ui_gps_main);
     create_app(panel, "Monitor", &img_monitoring, &ui_monitor_main);
     create_app(panel, "Power", &img_power, &ui_power_main);
