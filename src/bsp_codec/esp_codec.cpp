@@ -40,6 +40,11 @@
 #include "driver/i2s.h"
 #endif
 
+
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+#define i2s_port_t int
+#endif
+
 EspCodec::EspCodec(uint8_t i2s_channel)
 {
     _i2s_num = i2s_channel;

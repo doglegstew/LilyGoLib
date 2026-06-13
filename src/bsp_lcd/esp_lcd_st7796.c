@@ -16,6 +16,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_check.h"
+#include "esp_arduino_version.h"
 
 static const char *TAG = "st7796";
 
@@ -57,6 +58,7 @@ esp_err_t esp_lcd_new_panel_st7796(const esp_lcd_panel_io_handle_t io, const esp
         ESP_GOTO_ON_ERROR(gpio_config(&io_conf), err, TAG, "configure GPIO for RST line failed");
     }
 
+#if (ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(4,0,0))
     switch (panel_dev_config->color_space) {
     case ESP_LCD_COLOR_SPACE_RGB:
         st7796->madctl_val = 0;
@@ -68,6 +70,7 @@ esp_err_t esp_lcd_new_panel_st7796(const esp_lcd_panel_io_handle_t io, const esp
         ESP_GOTO_ON_FALSE(false, ESP_ERR_NOT_SUPPORTED, err, TAG, "unsupported color space");
         break;
     }
+#endif
 
     uint8_t fb_bits_per_pixel = 0;
     switch (panel_dev_config->bits_per_pixel) {

@@ -10,6 +10,7 @@
 #include <Arduino.h>
 #include <vector>
 #include <bsp_lcd/esp_lcd_st7796.h>
+#include "esp_arduino_version.h"
 
 #define DISP_CMD_MADCTL       (0x36) // Memory data access control
 #define DISP_CMD_CASET        (0x2A) // Set column address
@@ -427,8 +428,8 @@ bool LilyGoDispSPI::init(int sck, int miso, int mosi, int cs, int rst, int dc, i
 
     log_d( "Install panel IO");
     esp_lcd_panel_io_spi_config_t io_config = {
-        .cs_gpio_num = cs,
-        .dc_gpio_num = dc,
+        .cs_gpio_num = (gpio_num_t)cs,
+        .dc_gpio_num = (gpio_num_t)dc,
         .spi_mode = 0,
         .pclk_hz = (freq_Mhz * 1000U * 1000U),
         .trans_queue_depth = 2,
@@ -440,16 +441,26 @@ bool LilyGoDispSPI::init(int sck, int miso, int mosi, int cs, int rst, int dc, i
     // Attach the LCD to the SPI bus
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)SPI_DEV_HOST_ID, &io_config, &io_handle));
 
-    esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = rst,
-#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
-        .color_space = ESP_LCD_COLOR_SPACE_RGB,
+    esp_lcd_panel_dev_config_t panel_config;
+    panel_config.reset_gpio_num = (gpio_num_t)rst;
+    panel_config.bits_per_pixel = 16;
+
+#if (ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(4,0,0))
+    panel_config.rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB;
+    panel_config.data_endian = LCD_RGB_DATA_ENDIAN_LITTLE;
+    panel_config.vendor_config = nullptr;
 #else
-        .color_space = LCD_RGB_ELEMENT_ORDER_RGB,
-        .data_endian = LCD_RGB_DATA_ENDIAN_LITTLE,
+
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
+    panel_config.color_space = ESP_LCD_COLOR_SPACE_RGB;
+#else
+    panel_config.color_space = LCD_RGB_ELEMENT_ORDER_RGB;
+    panel_config.data_endian = LCD_RGB_DATA_ENDIAN_LITTLE;
 #endif
-        .bits_per_pixel = 16,
-    };
+#endif
+
+
+
 
 #if defined(ARDUINO_T_WATCH_S3)
     log_d( "Install ST7789 panel driver");

@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include "soc/rtc.h"
 
+#if (ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(4,0,0))
 #define CALIBRATE_ONE(cali_clk) calibrate_one(cali_clk, #cali_clk)
 
 static uint32_t calibrate_one(rtc_cal_sel_t cal_clk, const char *name)
@@ -20,9 +21,12 @@ static uint32_t calibrate_one(rtc_cal_sel_t cal_clk, const char *name)
     }
     return cali_val;
 }
+#endif
+
 
 bool esp_enable_slow_crystal()
 {
+#if (ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(4,0,0))
     rtc_clk_32k_enable(true);
 
     CALIBRATE_ONE(RTC_CAL_RTC_MUX);
@@ -43,6 +47,9 @@ bool esp_enable_slow_crystal()
         log_e("Failed to switch 32K XTAL RTC source to 32.768Khz !!! ");
         return false;
     }
+#else
+    // TODO:
+#endif
     return true;
 }
 

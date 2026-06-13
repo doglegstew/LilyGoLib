@@ -12,7 +12,7 @@
 #include "esp_log.h"
 
 #define TAG "SPI_If"
-
+#if 0
 typedef struct {
     audio_codec_ctrl_if_t base;
     bool                  is_open;
@@ -156,3 +156,4 @@ const audio_codec_ctrl_if_t *audio_codec_new_spi_ctrl(audio_codec_spi_cfg_t *spi
     }
     return &ctrl->base;
 }
+#endif
