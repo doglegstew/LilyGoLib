@@ -30,6 +30,10 @@
  *  - PCMFlowG722 library (https://github.com/tanakamasayuki/PCMFlowG722)
  */
 #include "ui_define.h"
+#include "esp_arduino_version.h"
+
+// Version marked, new version not compatible
+#if (ESP_ARDUINO_VERSION <= ESP_ARDUINO_VERSION_VAL(3,0,0)) && defined(ARDUINO_T_LORA_PAGER)
 
 #include <esp_now.h>
 #include <esp_wifi.h>
@@ -921,3 +925,4 @@ app_t ui_walkie_main = {
     .exit_func_cb  = ui_walkie_exit,
     .user_data     = nullptr,
 };
+#endif 
