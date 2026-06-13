@@ -53,8 +53,14 @@ def main():
             print(f"Error parsing JSON: {e}")
             print(f"Using the default configuration: build={should_build}, radio={active_radio}")
 
-    print(f"::set-output name=should_build::{str(should_build).lower()}")
-    print(f"::set-output name=active_radio::{active_radio}")
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as f:
+            f.write(f"should_build={str(should_build).lower()}\n")
+            f.write(f"active_radio={active_radio}\n")
+    else:
+        print(f"should_build={str(should_build).lower()}")
+        print(f"active_radio={active_radio}")
 
 if __name__ == "__main__":
     main()    

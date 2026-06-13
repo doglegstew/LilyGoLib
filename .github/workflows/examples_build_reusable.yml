@@ -1,0 +1,114 @@
+name: Examples Build Reusable
+
+on:
+  workflow_call:
+    inputs:
+      category:
+        description: Example category name
+        required: true
+        type: string
+      boards_file:
+        description: Path to boards JSON array file
+        required: true
+        type: string
+      examples_file:
+        description: Path to examples JSON array file
+        required: true
+        type: string
+
+jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      boards: ${{ steps.read-matrix.outputs.boards }}
+      examples: ${{ steps.read-matrix.outputs.examples }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read matrix JSON files
+        id: read-matrix
+        run: |
+          BOARDS_JSON=$(jq -c . "${{ inputs.boards_file }}")
+          EXAMPLES_JSON=$(jq -c . "${{ inputs.examples_file }}")
+          echo "boards=$BOARDS_JSON" >> "$GITHUB_OUTPUT"
+          echo "examples=$EXAMPLES_JSON" >> "$GITHUB_OUTPUT"
+
+  Arduino-Build:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board: ${{ fromJSON(needs.prepare-matrix.outputs.boards) }}
+        sketch: ${{ fromJSON(needs.prepare-matrix.outputs.examples) }}
+
+    env:
+      SKETCH: ${{ matrix.sketch }}
+      LILYGO_BOARD_TYPE: ${{ matrix.board }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Setup arduino-cli
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Configure arduino-cli
+        run: |
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_dev_index.json
+          arduino-cli core update-index
+
+      - name: Cache ESP32 core
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.arduino15/packages/esp32
+          key: esp32-core-${{ runner.os }}-${{ hashFiles('.github/workflows/examples_build_reusable.yml') }}
+          restore-keys: |
+            esp32-core-${{ runner.os }}-
+
+      - name: Install ESP32 core
+        run: arduino-cli core install esp32:esp32
+
+      - name: Check ci.json
+        id: check_json
+        run: |
+          python .github/scripts/check_ci_json.py \
+            --dir-path "$PWD/examples/$(dirname "$SKETCH")" \
+            --board "$LILYGO_BOARD_TYPE"
+
+      - name: Cache ThirdParty libraries
+        if: steps.check_json.outputs.should_build == 'true'
+        id: cache-thirdparty
+        uses: actions/cache@v4
+        with:
+          path: ~/Arduino/libraries/LilyGoLib-ThirdParty
+          key: thirdparty-${{ runner.os }}-${{ inputs.category }}-${{ hashFiles('.github/workflows/examples_build_reusable.yml') }}
+          restore-keys: |
+            thirdparty-${{ runner.os }}-${{ inputs.category }}-
+            thirdparty-${{ runner.os }}-
+
+      - name: Install ThirdParty
+        if: steps.check_json.outputs.should_build == 'true' && steps.cache-thirdparty.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$HOME/Arduino/libraries"
+          git clone https://github.com/Xinyuan-LilyGO/LilyGoLib-ThirdParty.git "$HOME/Arduino/libraries"
+
+      - name: Build examples
+        if: steps.check_json.outputs.should_build == 'true'
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          DIR_PATH=$(dirname "$PWD/examples/$SKETCH")
+          echo "CATEGORY: ${{ inputs.category }}"
+          echo "RUN EXAMPLE PATH: $DIR_PATH"
+          echo "ACTIVE RADIO: ${{ steps.check_json.outputs.active_radio }}"
+          echo "SHOULD BUILD: ${{ steps.check_json.outputs.should_build }}"
+
+          arduino-cli compile \
+            -besp32:esp32:$LILYGO_BOARD_TYPE:UploadSpeed=921600,USBMode=hwcdc,CDCOnBoot=cdc,MSCOnBoot=default,DFUOnBoot=default,UploadMode=default,CPUFreq=240,PartitionScheme=app3M_fat9M_16MB,DebugLevel=none,LoopCore=1,EventsCore=1,EraseFlash=none,JTAGAdapter=default,Revision=${{ steps.check_json.outputs.active_radio }} \
+            --library . \
+            "$PWD/examples/$SKETCH"

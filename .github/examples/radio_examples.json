@@ -1,0 +1,15 @@
+[
+    "radio/LR1121/LR11x0_Receive/LR11x0_Receive.ino",
+    "radio/LR1121/LR11x0_Transmit/LR11x0_Transmit.ino",
+    "radio/nRF2401/nRF24_Receive/nRF24_Receive.ino",
+    "radio/nRF2401/nRF24_Transmit/nRF24_Transmit.ino",
+    "radio/SI4432/Si4432_Receive/Si4432_Receive.ino",
+    "radio/SI4432/Si4432_Transmit/Si4432_Transmit.ino",
+    "radio/SX1262/LoRaWAN/LoRaWAN.ino",
+    "radio/SX1262/SX126x_PingPong/SX126x_PingPong.ino",
+    "radio/SX1262/SX126x_Receive/SX126x_Receive.ino",
+    "radio/SX1262/SX126x_Transmit/SX126x_Transmit.ino",
+    "radio/SX1280/SX128x_Ranging/SX128x_Ranging.ino",
+    "radio/SX1280/SX128x_Receive/SX128x_Receive.ino",
+    "radio/SX1280/SX128x_Transmit/SX128x_Transmit.ino"
+]
