@@ -78,8 +78,8 @@ Please confirm that it is running normally before trying to update to the latest
 > 🤖 T-Watch-S3-Plus the BOOT button and RST button have been reserved on the edge of the shell. Please follow the steps below to put the device into download mode.
 >
 > 1. Connect the board via the USB-C cable
-> 2. Press and hold the **BOOT** button , While still pressing the **BOOT** button
-> 3. Release the **RST** button
+> 2. Press and hold the **BOOT** button , Don't release
+> 3. Click the **RST** button
 > 4. Release the **BOOT** button
 > 5. The USB port should be fixed and will not flash again. You can click Upload.
 > 6. Press the **RST** button to exit download mode
