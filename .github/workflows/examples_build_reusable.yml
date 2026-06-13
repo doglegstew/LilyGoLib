@@ -72,7 +72,7 @@ jobs:
             esp32-core-${{ runner.os }}-
 
       - name: Install ESP32 core
-        run: arduino-cli core install esp32:esp32
+        run: arduino-cli core install esp32:esp32@3.3.10
 
       - name: Check ci.json
         id: check_json
