@@ -48,6 +48,13 @@
 > ⚠️Choose one of the following methods that suits you.
 >
 
+## LILYGO Spark
+
+- [LILYGO Spark](https://lilygo.cc/pages/lilygo-spark)
+
+![](../docs/images/LILYGO%20Spark.gif)
+
+
 ## ESP-Launchpad Online
 
 - [Esp-launchpad](https://espressif.github.io/esp-launchpad/)
@@ -94,3 +101,7 @@ For ESP32-S3 use the following command to write
 esptool --chip esp32s3  --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m 0x0 firmware.bin
 
 ```
+
+# How to view the device serial boot log
+
+![](../docs/images/serial.gif)
