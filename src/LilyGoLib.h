@@ -38,3 +38,4 @@
 #include "LilyGoWatchS3.h"
 #include "LilyGoWatchUltra.h"
 #include "LilyGo_LoRa_Pager.h"
+#include "LilyGoLib_Version.h"
