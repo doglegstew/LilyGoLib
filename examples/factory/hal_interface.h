@@ -104,7 +104,8 @@ typedef enum {
 
 
 // Define the GMT offset in seconds (for 8 hours ahead)
-#define GMT_OFFSET_SECOND       (8*3600)
+#define GMT_OFFSET_SECOND       (-5*3600) //-5 for CDT -6 for CST
+
 
 /**
  * @brief Structure to hold GPS parameters.
