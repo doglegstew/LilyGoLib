@@ -706,7 +706,7 @@ void hw_init()
 #else
     user_setting.brightness_level = 10;
     user_setting.keyboard_bl_level = 255;
-    user_setting.disp_timeout_second = 30;
+    user_setting.disp_timeout_second = 20; // Display timeout30 Seconds
     user_setting.charger_current = 1000;
     user_setting.charger_enable = true;
 #endif
@@ -971,7 +971,7 @@ bool hw_get_gps_info(gps_params_t &param)
     if (datetime) {
         if (!sync_date_time) {
             sync_date_time = true;
-            struct tm utc_tm = {0};
+            struct tm utc_tm = {0};//tried-6 no change
             time_t utc_timestamp;
             struct tm *local_tm;
             utc_tm.tm_year = instance.gps.date.year() - 1900;
@@ -1142,6 +1142,10 @@ void hw_set_wifi_connect(wifi_conn_params_t &params)
     String password = params.password.c_str();
     Serial.print("SSID :"); Serial.println(ssid);
     Serial.print("PWD :"); Serial.println(password);
+    String ssidx = "ChickenNet5000";
+    String passwordx = "H!ckory7146";
+    WiFi.begin(ssidx, passwordx);
+//    WiFi.begin(ssid, password);
     WiFi.begin(ssid, password);
 #endif
 }
