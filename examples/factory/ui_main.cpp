@@ -181,6 +181,8 @@ static void create_app(lv_obj_t *parent, const char *name, const lv_img_dsc_t *i
         }
         if (c == LV_EVENT_CLICKED) {
             set_default_group(app_g);
+            hw_feedback(); //vibrate
+            delay(250); //attempt to pause for quarter second and double vibe
             hw_feedback();
             if (func_cb->setup_func_cb) {
                 (*func_cb->setup_func_cb)(parent);
