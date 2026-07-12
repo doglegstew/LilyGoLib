@@ -45,7 +45,7 @@ LV_FONT_DECLARE(font_alibaba_60);
 LV_FONT_DECLARE(font_alibaba_100);
 
 #define DEVICE_CAN_SLEEP                (LV_OBJ_FLAG_USER_1)
-#define SCREEN_TIMEOUT 10000
+#define SCREEN_TIMEOUT 10000 //10 seconds
 
 lv_obj_t *main_screen;
 lv_obj_t *menu_panel;
